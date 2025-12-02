@@ -1,3 +1,4 @@
+from concurrent.futures import ProcessPoolExecutor
 import argparse
 from pathlib import Path
 import time
@@ -55,6 +56,16 @@ class IDReader:
                 if segment * (idLen // segmentLen) == idStr:
                     return False
         return True
+    @staticmethod
+    def process_range(reader):
+        part1 = 0
+        part2 = 0 
+        for id in reader.ids:
+            if not __class__.is_valid_old(id):
+                part1 += id
+            if not __class__.is_valid(id):
+                part2 += id
+        return part1, part2
 
     def __repr__(self) -> str:
         return f"{self.ids}"
@@ -75,17 +86,21 @@ if __name__ == "__main__":
 
     part_1_calculation = 0
     part_2_calculation = 0
-
-
+    readers: list[IDReader] = []
+    start = time.perf_counter()
+    
     with open(args.file, "r") as f:
-        start = time.time()
+        
         for line in f:
             for rangeStr in line.split(','):
-                reader = IDReader(rangeStr=rangeStr)
-                part_1_calculation += sum(id for id in reader.ids if not IDReader.is_valid_old(id))
-                part_2_calculation += sum(id for id in reader.ids if not IDReader.is_valid(id))
-        end = time.time()
-        print(f"part_1_calculation: {part_1_calculation}")
-        print(f"part_2_calculation: {part_2_calculation}")
-        print(f"Took {end - start:.6f} seconds")    
-                
+                readers.append(IDReader(rangeStr=rangeStr))
+    with ProcessPoolExecutor() as executor:
+        for part1,part2 in executor.map(IDReader.process_range, readers):
+            part_1_calculation += part1
+            part_2_calculation += part2
+    end = time.perf_counter()
+
+    print(f"part_1_calculation: {part_1_calculation}")
+    print(f"part_2_calculation: {part_2_calculation}")
+    print(f"Took {end - start:.6f} seconds")    
+            
