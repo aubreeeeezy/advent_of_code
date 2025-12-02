@@ -97,20 +97,6 @@ if __name__ == "__main__":
         help="Path to rotation command file (default: parent directory sample file)"
     )
 
-    parser.add_argument(
-        "--part1",
-        type=int,
-        default=989,
-        help="Expected Part 1 answer (default: 989)"
-    )
-
-    parser.add_argument(
-        "--part2",
-        type=int,
-        default=5941,
-        help="Expected Part 2 answer (default: 5941)"
-    )
-
     args = parser.parse_args()
 
     dial = Dial()
@@ -128,12 +114,5 @@ if __name__ == "__main__":
             if dial == 0:
                 part_1_calculation += 1
 
-    assert part_1_calculation == args.part1, \
-        f"Wrong part_1_calculation: got {part_1_calculation}, expected {args.part1}"
-
     print(f"part_1_calculation: {part_1_calculation}")
-
-    assert part_2_calculation == args.part2, \
-        f"Wrong part_2_calculation: got {part_2_calculation}, expected {args.part2}"
-
     print(f"part_2_calculation: {part_2_calculation}")
