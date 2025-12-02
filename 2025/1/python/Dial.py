@@ -1,7 +1,9 @@
 from re import Pattern, compile, Match
 from typing import Optional
+from pathlib import Path
+import argparse
 
-ROTATION_COMMAND_RE_COMPILED: Pattern[str] = compile(pattern=r'([LR])(\d*)') #Optimizes Regex Parsing
+ROTATION_COMMAND_RE_COMPILED: Pattern[str] = compile(pattern=r'([LR])(\d+)') #Optimizes Regex Parsing
 
 class Dial:
     def __init__(self) -> None:
@@ -21,15 +23,12 @@ class Dial:
         Raises ValueError if the command is not valid.
         """
 
-        match: Optional[Match[str]] = ROTATION_COMMAND_RE_COMPILED.search(string = rotation_command)
+        match: Optional[Match[str]] = ROTATION_COMMAND_RE_COMPILED.match(string = rotation_command)
         if match: 
             total_steps = int(match[2])
             relative_steps: int = total_steps % 100
             full_rotations: int = total_steps // 100
-            if match[1] == "L":
-                direction = -1
-            else: 
-                direction = 1
+            direction = -1 if match[1] == "L" else 1
             return (relative_steps * direction, full_rotations)
         else:
             raise ValueError(f"{rotation_command} is not a valid rotation command")
@@ -74,7 +73,7 @@ class Dial:
                 times_passed_zero += 1
         for click in range(times_passed_zero):
             print("*CLICK*")
-        print(dial)
+        print(self)
         return times_passed_zero
 
     def __repr__(self) -> str:
@@ -87,22 +86,54 @@ class Dial:
 
 
 if __name__ == "__main__":
-    path = 'sample_rotation_commands.txt'
+    
+    parser = argparse.ArgumentParser(description="Dial rotation solver")
+
+    default_file = Path(__file__).parent.parent / "sample_rotation_commands.txt"
+
+    parser.add_argument(
+        "-f", "--file",
+        default=str(default_file),
+        help="Path to rotation command file (default: parent directory sample file)"
+    )
+
+    parser.add_argument(
+        "--part1",
+        type=int,
+        default=989,
+        help="Expected Part 1 answer (default: 989)"
+    )
+
+    parser.add_argument(
+        "--part2",
+        type=int,
+        default=5941,
+        help="Expected Part 2 answer (default: 5941)"
+    )
+
+    args = parser.parse_args()
+
     dial = Dial()
     part_1_calculation = 0
     part_2_calculation = 0
+
     print(dial)
-    with open(file=path, mode='r') as f:
+
+    with open(args.file, "r") as f:
         for line in f:
-            times_passed_zero = dial.rotate(rotation_command=line.strip()) # Captures number of clicks required for part 2. 
+            rotation = line.strip()
+            times_passed_zero = dial.rotate(rotation_command=rotation)
             part_2_calculation += times_passed_zero
+
             if dial == 0:
-                part_1_calculation += 1 # Captures number of times landed on zero required for part 1.
+                part_1_calculation += 1
 
-        PART_1_ANSWER = 989
-        assert part_1_calculation == PART_1_ANSWER, f"Wrong part_1_calculation got {part_1_calculation} expected {PART_1_ANSWER}"
-        print(f"part_1_calculation:{part_1_calculation}")
+    assert part_1_calculation == args.part1, \
+        f"Wrong part_1_calculation: got {part_1_calculation}, expected {args.part1}"
 
-        PART_2_ANSWER  = 5941
-        assert part_2_calculation == PART_2_ANSWER , f"Wrong part_2_calculation got {part_2_calculation} expected {PART_2_ANSWER }"
-        print(f"part_2_calculation:{part_2_calculation}")
+    print(f"part_1_calculation: {part_1_calculation}")
+
+    assert part_2_calculation == args.part2, \
+        f"Wrong part_2_calculation: got {part_2_calculation}, expected {args.part2}"
+
+    print(f"part_2_calculation: {part_2_calculation}")
