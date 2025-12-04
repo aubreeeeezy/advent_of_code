@@ -4,28 +4,30 @@ from pathlib import Path
 import time
 
 class PaperStack:
+    NEIGHBOR_OFFSETS = [
+        (-1, -1), (-1, 0), (-1, 1),
+        ( 0, -1),          ( 0, 1),
+        ( 1, -1), ( 1, 0), ( 1, 1),
+    ]
+
     def __init__(self, stackStrLst: list[str]) -> None:
         self.height = len(stackStrLst)
         self.width = len(stackStrLst[0].strip())
         self.stacks = [[(stackStrLst[i][j] == '@') * 1 for j in range(self.width)] for i in range(self.height)]
         self.heat = self.heat_matrix()
 
-    @staticmethod
-    def print_int_matrix(matrix):
-        for i in range(len(matrix)):
-            print(matrix[i])
-
+    def neighbors(self, i: int, j: int):
+        for di, dj in __class__.NEIGHBOR_OFFSETS:
+            ni, nj = i + di, j + dj
+            if 0 <= ni < self.height and 0 <= nj < self.width:
+                yield ni, nj
 
     def heat_matrix(self) -> list[list[int]]:
         matrix = [[0 for _ in range(self.width)] for _ in range(self.height)]
         for i in range(self.height): 
             for j in range(self.width): 
-                for i2 in [i + relative_i for relative_i in [-1, 0, 1]]: 
-                    for j2 in [j + relative_j for relative_j in [-1, 0, 1]]:
-                        if i2 >= 0 and j2 >= 0:
-                            if i2 < self.height and j2 < self.width:
-                                if (i,j) != (i2,j2):
-                                    matrix[i][j] += self.stacks[i2][j2]
+                for ni, nj in self.neighbors(i, j):
+                    matrix[i][j] += self.stacks[ni][nj]
         return matrix
 
     def get_removable_rolls(self, threshold = 4):
@@ -43,12 +45,8 @@ class PaperStack:
         removeable_rolls = self.get_removable_rolls(threshold)
         for i, j in removeable_rolls:
             self.stacks[i][j] = 0
-            for i2 in [i + relative_i for relative_i in [-1, 0, 1]]: 
-                for j2 in [j + relative_j for relative_j in [-1, 0, 1]]:
-                    if i2 >= 0 and j2 >= 0:
-                        if i2 < self.height and j2 < self.width:
-                            if (i,j) != (i2,j2):
-                                self.heat[i2][j2] -= 1
+            for ni, nj in self.neighbors(i, j):
+                self.heat[ni][nj] -= 1
         return len(removeable_rolls)
 
 
