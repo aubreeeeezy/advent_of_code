@@ -4,7 +4,7 @@ import time
 
 class FoodDatabase:
     def __init__(self, ranges: list[range]) -> None:
-        self.ranges = [range(start,stop) for start, stop in FoodDatabase._merge_ranges(ranges)]
+        self.ranges: list[range] = [range(start,stop) for start, stop in FoodDatabase._merge_ranges(ranges=ranges)]
 
     @staticmethod
     def _merge_ranges(ranges: list[range]) -> list[tuple[int, int]]:
@@ -12,7 +12,7 @@ class FoodDatabase:
             return []
 
         # Convert to (start, stop) and sort
-        intervals = sorted(((r.start, r.stop) for r in ranges), key=lambda x: x[0])
+        intervals: list[tuple[int, int]] = sorted(((r.start, r.stop) for r in ranges), key=lambda x: x[0])
         merged: list[tuple[int, int]] = [intervals[0]]
 
         for start, stop in intervals[1:]:
@@ -38,22 +38,18 @@ class FoodDatabase:
         return False
 
     def fresh_ids_count(self) -> int:
-        """
-        Count of distinct IDs covered by all ranges, without materializing them.
-        """
-        # sum of lengths of merged intervals
         return sum(stop - start for start, stop in ((r.start, r.stop) for r in self.ranges))
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Dial rotation solver")
+    parser = argparse.ArgumentParser(description="Food Database")
 
     default_file = Path(__file__).parent.parent / "sample_codes.txt"
 
     parser.add_argument(
         "-f", "--file",
         default=str(default_file),
-        help="Path to rotation command file (default: parent directory sample file)"
+        help="Path to instruction_file (default: parent directory sample file)"
     )
 
     args = parser.parse_args()
@@ -61,7 +57,7 @@ if __name__ == "__main__":
     part_1_calculation = 0
     part_2_calculation = 0
     banks: list[FoodDatabase] = []
-    start = time.perf_counter()
+    start: float = time.perf_counter()
     ranges:list[range] = []
     food_items:list[int] = []
     
@@ -89,7 +85,7 @@ if __name__ == "__main__":
             part_1_calculation += 1
     print(f"part_1_calculation: {part_1_calculation}")
     part_2_calculation = db.fresh_ids_count()
-    end = time.perf_counter()
+    end: float = time.perf_counter()
 
 
     print(f"part_2_calculation: {part_2_calculation}")
