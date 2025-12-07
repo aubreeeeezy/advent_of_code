@@ -203,7 +203,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Homework solver")
 
-    default_file = Path(__file__).parent.parent / "sample_homework.txt"
+    default_file: Path = Path(__file__).parent.parent / "sample_homework.txt"
 
     parser.add_argument(
         "-f",
