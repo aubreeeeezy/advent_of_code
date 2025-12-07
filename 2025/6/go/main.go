@@ -4,9 +4,7 @@ import (
     "bufio"
     "fmt"
     "os"
-    "strconv"
     "strings"
-    "sync"
     "time"
 )
 
@@ -16,6 +14,18 @@ const ADDITION_OPERATOR rune = '+'
 type MathProblem struct {
     Numerals []int
     Operator rune
+}
+
+func parseUint(s string) int {
+    n := 0
+    for i := 0; i < len(s); i++ {
+        c := s[i]
+        if c < '0' || c > '9' {
+            continue
+        }
+        n = n*10 + int(c-'0')
+    }
+    return n
 }
 
 func solve(problem MathProblem) int {
@@ -87,10 +97,7 @@ func get_problem(problem_chunk []string) MathProblem {
     numerals := make([]int, chunkLen-1)
 
     for i, val := range problem_chunk[:chunkLen-1] {
-        n, err := strconv.Atoi(strings.TrimSpace(val))
-        if err != nil {
-            panic(err)
-        }
+        n := parseUint(strings.TrimSpace(val))
         numerals[i] = n
     }
 
@@ -123,10 +130,7 @@ func get_cephalid_problem(problem_chunk []string) MathProblem {
         if s == "" {
             continue
         }
-        n, err := strconv.Atoi(s)
-        if err != nil {
-            panic(err)
-        }
+        n := parseUint(s)
         numerals = append(numerals, n)
     }
 
@@ -136,33 +140,6 @@ func get_cephalid_problem(problem_chunk []string) MathProblem {
         Numerals: numerals,
         Operator: op,
     }
-}
-
-func solve_problems_parallel(problems []MathProblem) int {
-    var wg sync.WaitGroup
-    results := make(chan int, len(problems))
-
-    // Start one goroutine per problem
-    for _, p := range problems {
-        wg.Add(1)
-        go func(p MathProblem) {
-            defer wg.Done()
-            results <- solve(p)
-        }(p)
-    }
-
-    // Close results when all goroutines are done
-    go func() {
-        wg.Wait()
-        close(results)
-    }()
-
-    // Sum all results
-    total := 0
-    for r := range results {
-        total += r
-    }
-    return total
 }
 
 func main() {
@@ -191,8 +168,8 @@ func main() {
         problemsCephalid = append(problemsCephalid, get_cephalid_problem(chunk))
     }
 
-    part1 := solve_problems_parallel(problems)          // e.g. 8 workers
-    part2 := solve_problems_parallel(problemsCephalid)
+    part1 := solve_problems(problems)          // e.g. 8 workers
+    part2 := solve_problems(problemsCephalid)
 
     fmt.Printf("part_1_calculation: %d\n", part1)
     fmt.Printf("part_2_calculation: %d\n", part2)
