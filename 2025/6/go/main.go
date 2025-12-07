@@ -6,6 +6,7 @@ import (
     "os"
     "strconv"
     "strings"
+    "sync"
     "time"
 )
 
@@ -137,6 +138,33 @@ func get_cephalid_problem(problem_chunk []string) MathProblem {
     }
 }
 
+func solve_problems_parallel(problems []MathProblem) int {
+    var wg sync.WaitGroup
+    results := make(chan int, len(problems))
+
+    // Start one goroutine per problem
+    for _, p := range problems {
+        wg.Add(1)
+        go func(p MathProblem) {
+            defer wg.Done()
+            results <- solve(p)
+        }(p)
+    }
+
+    // Close results when all goroutines are done
+    go func() {
+        wg.Wait()
+        close(results)
+    }()
+
+    // Sum all results
+    total := 0
+    for r := range results {
+        total += r
+    }
+    return total
+}
+
 func main() {
     start := time.Now()
 
@@ -163,10 +191,10 @@ func main() {
         problemsCephalid = append(problemsCephalid, get_cephalid_problem(chunk))
     }
 
-    part1 := solve_problems(problems)
-    fmt.Printf("part_1_calculation: %d\n", part1)
+    part1 := solve_problems_parallel(problems)          // e.g. 8 workers
+    part2 := solve_problems_parallel(problemsCephalid)
 
-    part2 := solve_problems(problemsCephalid)
+    fmt.Printf("part_1_calculation: %d\n", part1)
     fmt.Printf("part_2_calculation: %d\n", part2)
 
     elapsed := time.Since(start)
