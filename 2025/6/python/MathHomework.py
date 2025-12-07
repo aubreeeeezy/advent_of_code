@@ -57,7 +57,9 @@ class MathProblem:
         elif self.operator == "+":
             return sum(self.numerals)
         else:
-            raise ValueError(f"Invalid operator '{self.operator}' expected value in {self.VALID_OPERATORS}")
+            raise ValueError(
+                f"Invalid operator '{self.operator}' expected value in {self.VALID_OPERATORS}"
+            )
 
     def __repr__(self) -> str:
         """Return a readable string representation of the math problem."""
@@ -95,14 +97,16 @@ class MathProblem:
         int
             The sum of the results of all problems.
         """
-        solution: int  = 0
+        solution: int = 0
         with ProcessPoolExecutor() as executor:
             for ans in executor.map(MathProblem.solve_problem, problems):
                 solution += ans
         return solution
 
 
-def get_operator_positions(operator_line: str, operators=MathProblem.VALID_OPERATORS) -> list[int]:
+def get_operator_positions(
+    operator_line: str, operators=MathProblem.VALID_OPERATORS
+) -> list[int]:
     """
     Return the indices in a string where arithmetic operator characters appear.
 
@@ -189,7 +193,9 @@ def get_cephalid_problem(problem_chunk: list[str]) -> MathProblem:
         "".join([line[column] for line in problem_chunk[0:-1]])
         for column in range(width)
     ]
-    numerals: list[int] = [int(column.strip()) for column in columns if len(column.strip())]
+    numerals: list[int] = [
+        int(column.strip()) for column in columns if len(column.strip())
+    ]
     operator: str = problem_chunk[-1].strip()
     return MathProblem(operator=operator, numerals=numerals)
 
@@ -221,7 +227,7 @@ if __name__ == "__main__":
         problems.append(get_problem(problem_chunk=problem_chunk))
         problems_cepahlid.append(get_cephalid_problem(problem_chunk=problem_chunk))
 
-    part_1_calculation:int = MathProblem.solve_problems(problems=problems)
+    part_1_calculation: int = MathProblem.solve_problems(problems=problems)
     print(f"part_1_calculation: {part_1_calculation}")
 
     part_2_calculation = MathProblem.solve_problems(problems=problems_cepahlid)
