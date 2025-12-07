@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 import time
 
+
 class PowerBank:
     """
     PowerBank models a bank of batteries, represented by a sequence of digit 'jolts'.
@@ -12,8 +13,8 @@ class PowerBank:
     jolts : list[int]
         The digit sequence representing the battery voltages or positions.
     """
-        
-    def __init__(self, jolts:str) -> None:
+
+    def __init__(self, jolts: str) -> None:
         """
         Initialize a PowerBank from a string of digits.
 
@@ -23,7 +24,7 @@ class PowerBank:
             A string of decimal digits, e.g. "123456".
         """
         self.jolts: list[int] = [int(i) for i in jolts]
-    
+
     def get_positional_reading(self, num_batteries) -> list[int]:
         """
         Compute the positions of `num_batteries` digits to use for a reading.
@@ -42,14 +43,19 @@ class PowerBank:
         list[int]
             A list of indices into self.jolts representing the chosen positions.
         """
-        digit_positions:list[int] = [i for i in range(num_batteries)]
+        digit_positions: list[int] = [i for i in range(num_batteries)]
         for curr_digit in range(num_batteries):
-            for battery_pos in range(digit_positions[curr_digit], len(self.jolts) - (num_batteries - curr_digit) + 1):
+            for battery_pos in range(
+                digit_positions[curr_digit],
+                len(self.jolts) - (num_batteries - curr_digit) + 1,
+            ):
                 if self.jolts[battery_pos] > self.jolts[digit_positions[curr_digit]]:
                     for later_digit in range(curr_digit, num_batteries):
-                        digit_positions[later_digit] = battery_pos + later_digit - curr_digit
+                        digit_positions[later_digit] = (
+                            battery_pos + later_digit - curr_digit
+                        )
         return digit_positions
-    
+
     def get_reading(self, num_batteries) -> int:
         """
         Compute an integer reading by selecting `num_batteries` digits.
@@ -67,14 +73,14 @@ class PowerBank:
         int
             The computed reading as an integer.
         """
-        reading = 0 
+        reading = 0
         pos_reading = self.get_positional_reading(num_batteries)
         for i in range(num_batteries):
-           reading = (reading * 10) + self.jolts[pos_reading[i]]
-        return reading  
+            reading = (reading * 10) + self.jolts[pos_reading[i]]
+        return reading
 
     @staticmethod
-    def get_reading_bank(bank) -> tuple[int,int]:
+    def get_reading_bank(bank) -> tuple[int, int]:
         """
         Compute both the 'old' and 'new' readings for a PowerBank.
 
@@ -92,8 +98,9 @@ class PowerBank:
             (reading_old, reading_new) where:
             - reading_old uses 2 batteries,
             - reading_new uses 12 batteries.
-        """        
+        """
         return bank.get_reading(2), bank.get_reading(12)
+
 
 if __name__ == "__main__":
 
@@ -102,9 +109,10 @@ if __name__ == "__main__":
     default_file = Path(__file__).parent.parent / "sample_banks.txt"
 
     parser.add_argument(
-        "-f", "--file",
+        "-f",
+        "--file",
         default=str(default_file),
-        help="Path to rotation command file (default: parent directory sample file)"
+        help="Path to rotation command file (default: parent directory sample file)",
     )
 
     args = parser.parse_args()
@@ -113,13 +121,13 @@ if __name__ == "__main__":
     part_2_calculation = 0
     banks: list[PowerBank] = []
     start = time.perf_counter()
-    
+
     with open(args.file, "r") as f:
         for line in f:
-                banks.append(PowerBank(line.strip()))
-                
+            banks.append(PowerBank(line.strip()))
+
     with ProcessPoolExecutor() as executor:
-        for part1,part2 in executor.map(PowerBank.get_reading_bank, banks):
+        for part1, part2 in executor.map(PowerBank.get_reading_bank, banks):
             print(part1)
             part_1_calculation += part1
             part_2_calculation += part2
@@ -127,4 +135,4 @@ if __name__ == "__main__":
 
     print(f"part_1_calculation: {part_1_calculation}")
     print(f"part_2_calculation: {part_2_calculation}")
-    print(f"Took {end - start:.6f} seconds")    
+    print(f"Took {end - start:.6f} seconds")

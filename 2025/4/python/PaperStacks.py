@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import time
 
+
 class PaperStack:
     """
     Represents a 2D grid of paper rolls, where each roll is either present (`@`)
@@ -9,10 +10,16 @@ class PaperStack:
     neighbors each roll has, and supports iterative removal of rolls whose
     neighbor count falls below a given threshold.
     """
+
     NEIGHBOR_OFFSETS = [
-        (-1, -1), (-1, 0), (-1, 1),
-        ( 0, -1),          ( 0, 1),
-        ( 1, -1), ( 1, 0), ( 1, 1),
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
     ]
 
     def __init__(self, stackStrLst: list[str]) -> None:
@@ -34,7 +41,10 @@ class PaperStack:
         """
         self.height = len(stackStrLst)
         self.width = len(stackStrLst[0].strip())
-        self.stacks = [[(stackStrLst[i][j] == '@') * 1 for j in range(self.width)] for i in range(self.height)]
+        self.stacks = [
+            [(stackStrLst[i][j] == "@") * 1 for j in range(self.width)]
+            for i in range(self.height)
+        ]
         self.heat = self.heat_matrix()
 
     def neighbors(self, i: int, j: int):
@@ -62,13 +72,13 @@ class PaperStack:
             list[list[int]]: 2D list containing neighbor counts.
         """
         matrix = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        for i in range(self.height): 
-            for j in range(self.width): 
+        for i in range(self.height):
+            for j in range(self.width):
                 for ni, nj in self.neighbors(i, j):
                     matrix[i][j] += self.stacks[ni][nj]
         return matrix
 
-    def get_removable_rolls(self, threshold = 4):
+    def get_removable_rolls(self, threshold=4):
         """
         Identify all rolls that are eligible for removal based on the heat matrix.
 
@@ -88,10 +98,10 @@ class PaperStack:
         for i in range(self.height):
             for j in range(self.width):
                 if self.stacks[i][j] and heat_matrix[i][j] < threshold:
-                    available_rolls.append((i,j))
+                    available_rolls.append((i, j))
         return available_rolls
 
-    def remove_rolls(self,threshold = 4) -> int:
+    def remove_rolls(self, threshold=4) -> int:
         """
         Remove all rolls that fall below the heat threshold and update the heat
         matrix accordingly.
@@ -120,9 +130,10 @@ if __name__ == "__main__":
     default_file = Path(__file__).parent.parent / "sample_stack.txt"
 
     parser.add_argument(
-        "-f", "--file",
+        "-f",
+        "--file",
         default=str(default_file),
-        help="Path to rotation command file (default: parent directory sample file)"
+        help="Path to rotation command file (default: parent directory sample file)",
     )
 
     args = parser.parse_args()
@@ -141,9 +152,9 @@ if __name__ == "__main__":
     while rolls_removed > 0:
         part_2_calculation += rolls_removed
         rolls_removed = stack.remove_rolls()  # Fetch next removal
-        
+
     end = time.perf_counter()
 
     print(f"part_1_calculation: {part_1_calculation}")
     print(f"part_2_calculation: {part_2_calculation}")
-    print(f"Took {end - start:.6f} seconds")    
+    print(f"Took {end - start:.6f} seconds")
