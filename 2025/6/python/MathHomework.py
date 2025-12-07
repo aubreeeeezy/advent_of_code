@@ -229,7 +229,7 @@ if __name__ == "__main__":
     part_1_calculation: int = MathProblem.solve_problems(problems=problems)
     print(f"part_1_calculation: {part_1_calculation}")
 
-    part_2_calculation = MathProblem.solve_problems(problems=problems_cepahlid)
+    part_2_calculation: int = MathProblem.solve_problems(problems=problems_cepahlid)
     print(f"part_2_calculation: {part_2_calculation}")
 
     end: float = time.perf_counter()
