@@ -1,5 +1,4 @@
 import argparse
-from curses.ascii import isspace
 from pathlib import Path
 import time
 import math
