@@ -54,7 +54,7 @@ func solve_problems(problems []MathProblem) int {
 
 func get_operator_position(operator_line string) []int {
     positions := make([]int, 0, len(operator_line)/2)
-    for i, c := range operator_line { // c is rune
+    for i, c := range operator_line {
         if c == MULTIPLICATION_OPERATOR || c == ADDITION_OPERATOR {
             positions = append(positions, i)
         }
@@ -115,7 +115,6 @@ func get_cephalid_problem(problem_chunk []string) MathProblem {
 
     columns := make([]string, width)
 
-    // Build vertical columns from all but the last line (last is operator row)
     for c := 0; c < width; c++ {
         var b strings.Builder
         for _, line := range problem_chunk[:chunkLen-1] {
@@ -168,7 +167,7 @@ func main() {
         problemsCephalid = append(problemsCephalid, get_cephalid_problem(chunk))
     }
 
-    part1 := solve_problems(problems)          // e.g. 8 workers
+    part1 := solve_problems(problems)
     part2 := solve_problems(problemsCephalid)
 
     fmt.Printf("part_1_calculation: %d\n", part1)
